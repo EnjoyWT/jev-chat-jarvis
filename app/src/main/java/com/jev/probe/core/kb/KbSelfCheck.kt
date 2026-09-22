@@ -99,10 +99,12 @@ object KbSelfCheck {
             if (store.logSize(contactId) != snapshot.messages.size + 1)
                 failures.add("重复采集被写了第二遍：${store.logSize(contactId)} 条")
 
-            // 5. background carries the fabricated fact into the prompt
-            val background = ctx2.background("默认关系")
+            // 5. background carries the fabricated fact, while relationship is resolved once
+            val background = ctx2.background()
             if (!background.contains("小蓝")) failures.add("background 里没有笔记正文")
-            if (!background.contains("自检用的关系描述")) failures.add("background 里没有联系人关系")
+            if (background.contains("关系：")) failures.add("background 重复携带了联系人关系")
+            if (ctx2.effectiveRelationship("默认关系") != "自检用的关系描述")
+                failures.add("联系人关系没有覆盖默认关系")
 
             // 6. history is off by default (opt-in only)
             prefs.contextEnabled = false

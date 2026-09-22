@@ -258,7 +258,13 @@ open class ChatCaptureService : AccessibilityService() {
             } catch (e: Exception) {
                 Log.w(TAG, "context build failed: ${e.javaClass.simpleName}"); null
             }
-            main.post { overlay?.setContextInfo(ctx?.notes?.size ?: 0, ctx?.history?.size ?: 0) }
+            main.post {
+                overlay?.setContextInfo(
+                    ctx?.contact?.name,
+                    ctx?.notes?.size ?: 0,
+                    ctx?.history?.size ?: 0
+                )
+            }
 
             // Judgment is fast (~1s) — show it immediately.
             submit {

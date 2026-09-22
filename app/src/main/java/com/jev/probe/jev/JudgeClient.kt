@@ -76,15 +76,16 @@ class JudgeClient(private val prefs: Prefs) {
         ctx: ChatContext?,
         questions: JSONObject
     ): JSONObject {
-        val background = ctx?.background(relationship) ?: ""
+        val effectiveRelationship = ctx?.effectiveRelationship(relationship) ?: relationship.trim()
+        val background = ctx?.background() ?: ""
         val history = ctx?.history ?: emptyList()
         val enriched = background.isNotBlank() || history.isNotEmpty()
         return try {
-            send(JevQuestions.buildState(snapshot, relationship, background, history), questions)
+            send(JevQuestions.buildState(snapshot, effectiveRelationship, background, history), questions)
         } catch (e: ApiException) {
             if (enriched && e.status != null && e.status in 400..499) {
                 Log.w(TAG, "judge HTTP ${e.status} with background/history; retrying plain")
-                send(JevQuestions.buildState(snapshot, relationship), questions)
+                send(JevQuestions.buildState(snapshot, effectiveRelationship), questions)
             } else throw e
         }
     }

@@ -277,14 +277,14 @@ class KnowledgeActivity : AppCompatActivity() {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
             minLines = 3; gravity = Gravity.TOP
         }
-        val relEdit = edit(existing?.relationship ?: "", "例如：同事，带我做项目的组长")
+        val relEdit = edit(existing?.relationship ?: "", "留空使用设置页的默认关系")
         val notesEdit = edit(existing?.notes ?: "", "关于这个人要记住的事").apply {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
             minLines = 3; gravity = Gravity.TOP
         }
         box.addView(label("名字")); box.addView(nameEdit)
         box.addView(label("别名（每行一个）")); box.addView(aliasEdit)
-        box.addView(label("关系")); box.addView(relEdit)
+        box.addView(label("关系描述（优先于默认设置）")); box.addView(relEdit)
         box.addView(label("备注")); box.addView(notesEdit)
 
         AlertDialog.Builder(this)

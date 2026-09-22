@@ -55,7 +55,8 @@ class OverlayController(private val ctx: Context) {
     /** Bubble menu → one manual screenshot + OCR of whatever app is open. */
     var onOcrCapture: (() -> Unit)? = null
 
-    /** How much knowledge context the last analysis actually used. */
+    /** Which contact and how much knowledge context the last analysis used. */
+    private var ctxContact: String? = null
     private var ctxNotes = 0
     private var ctxHistory = 0
 
@@ -309,6 +310,9 @@ class OverlayController(private val ctx: Context) {
         lastJudgment = null
         lastFill = null
         noteText = null
+        ctxContact = null
+        ctxNotes = 0
+        ctxHistory = 0
         replyError = null
         contentBox?.removeAllViews()
     }
@@ -325,15 +329,17 @@ class OverlayController(private val ctx: Context) {
 
     fun showLoading() {
         ensureRoot(); bubble?.alpha = 1f
-        ctxNotes = 0; ctxHistory = 0   // counts for the round that is starting
+        ctxContact = null; ctxNotes = 0; ctxHistory = 0 // context for the round that is starting
         replyError = null              // this round has not failed (yet)
         setContent(listOf(hint("分析中…")))
         if (!expanded) toggle()
     }
 
-    /** How many knowledge notes / history lines went into the pending analysis. */
-    fun setContextInfo(notes: Int, history: Int) {
-        ctxNotes = notes; ctxHistory = history
+    /** Which contact and how many knowledge notes / history lines went into this analysis. */
+    fun setContextInfo(contact: String?, notes: Int, history: Int) {
+        ctxContact = contact?.trim()?.takeIf { it.isNotEmpty() }
+        ctxNotes = notes
+        ctxHistory = history
     }
 
     /** A caveat line for the panel (OCR mode); null clears it. */
@@ -389,10 +395,14 @@ class OverlayController(private val ctx: Context) {
         panel?.background = card(18, panelBg(), stroke = true) // re-apply in case opacity changed
         val views = ArrayList<View>()
 
-        // What context this read was based on (knowledge base / remembered history).
-        views.add(hint(
-            if (ctxNotes == 0 && ctxHistory == 0) "未用知识库"
-            else "知识库 $ctxNotes 条 · 历史 $ctxHistory 条"))
+        // What context this read was based on. A matched contact is useful even
+        // when history recording is off, so never hide it behind zero counts.
+        ctxContact?.let { views.add(hint("已关联联系人：$it")) }
+        if (ctxNotes > 0 || ctxHistory > 0) {
+            views.add(hint("知识库 $ctxNotes 条 · 历史 $ctxHistory 条"))
+        } else if (ctxContact == null) {
+            views.add(hint("未用知识库"))
+        }
 
         // How this snapshot was captured, when it changes how to read it.
         noteText?.let { if (it.isNotBlank()) views.add(hint(it)) }

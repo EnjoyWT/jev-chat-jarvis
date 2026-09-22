@@ -263,7 +263,7 @@ class SettingsActivity : AppCompatActivity() {
         // =================== 分析 ===================
         root.addView(section("分析"))
         val card2 = card()
-        card2.addView(label("关系描述（给 Jev 判断用）"))
+        card2.addView(label("默认关系描述（联系人未设置时使用）"))
         val relEdit = edit(prefs.relationship, Prefs.DEFAULT_REL)
         card2.addView(relEdit)
         card2.addView(label("会话白名单（每行一个关键词，空=所有会话）"))
@@ -291,7 +291,7 @@ class SettingsActivity : AppCompatActivity() {
             inputType = InputType.TYPE_CLASS_NUMBER
         }
         card2.addView(ctxCountEdit)
-        card2.addView(cardBtn("知识库与联系人") {
+        card2.addView(cardBtn("知识库与联系人（可单独设置关系）") {
             startActivity(android.content.Intent(this, KnowledgeActivity::class.java))
         })
         val kbResult = resultText()
